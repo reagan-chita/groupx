@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ZCAS Student Tracker Login</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Reset */
+        * {
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Gradient Animated Background */
+        body{
+            height:100vh;
+            background: linear-gradient(-45deg, #002D72, #0055A4, #FFD100, #002D72);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
+        }
+
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        /* App Bar */
+        .app-bar{
+            height:70px;
+            background:#002D72;
+            display:flex;
+            align-items:center;
+            padding-left:20px;
+            font-size:22px;
+            font-weight:bold;
+            color:#FFD100;
+            box-shadow:0 2px 8px rgba(0,0,0,0.2);
+            position: relative;
+            z-index:2;
+        }
+
+        /* Optional Logo */
+        .app-bar img {
+            height:40px;
+            margin-right:15px;
+        }
+
+        /* Container */
+        .container{
+            flex:1;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            position: relative;
+            z-index:2;
+        }
+
+        /* Login Card */
+        .login-card{
+            background:white;
+            padding:40px;
+            width:350px;
+            border-radius:12px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.2);
+            text-align:center;
+            position: relative;
+            z-index:2;
+            transform: translateY(50px);
+            opacity: 0;
+            animation: slideFade 1s forwards;
+            transition: 0.3s;
+        }
+
+        /* Card hover lift */
+        .login-card:hover{
+            transform: translateY(-5px);
+            box-shadow:0 15px 35px rgba(0,0,0,0.25);
+        }
+
+        @keyframes slideFade {
+            to {transform: translateY(0); opacity:1;}
+        }
+
+        .login-card h2{
+            margin-bottom:20px;
+            color:#002D72;
+        }
+
+        /* Inputs */
+        .input-group{
+            position: relative;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            margin:10px 0;
+            border-radius:8px;
+            border:1px solid #ccc;
+            font-size:14px;
+            transition:0.3s;
+        }
+
+        input:focus{
+            outline:none;
+            border-color:#002D72;
+            box-shadow: 0 0 5px rgba(0,45,114,0.5);
+        }
+
+        /* Password toggle */
+        .password-field {
+            position: relative;
+        }
+
+        .password-field .eye {
+            position: absolute;
+            right:12px;
+            top:50%;
+            transform: translateY(-50%);
+            cursor:pointer;
+            font-size:16px;
+            user-select:none;
+        }
+
+        /* Button */
+        button{
+            width:100%;
+            padding:12px;
+            margin-top:15px;
+            border:none;
+            border-radius:8px;
+            background:#002D72;
+            color:#FFD100;
+            font-size:16px;
+            cursor:pointer;
+            transition:0.3s;
+            font-weight:bold;
+        }
+
+        button:hover{
+            background: linear-gradient(90deg, #FFD100, #FFB700);
+            color:#002D72;
+        }
+
+        /* Links */
+        a{
+            display:block;
+            margin-top:15px;
+            text-decoration:none;
+            color:#002D72;
+            font-size:14px;
+        }
+
+        a:hover{
+            text-decoration:underline;
+        }
+
+        /* Floating Circles */
+        .circle{
+            position:absolute;
+            border-radius:50%;
+            opacity:0.3;
+            animation: float 20s linear infinite;
+            z-index:1;
+        }
+
+        .circle1{ width:150px; height:150px; background:#FFD100; top:10%; left:5%; animation-duration:20s;}
+        .circle2{ width:100px; height:100px; background:#002D72; top:50%; left:80%; animation-duration:25s;}
+        .circle3{ width:120px; height:120px; background:#0055A4; top:70%; left:20%; animation-duration:30s;}
+        .circle4{ width:80px; height:80px; background:#FFD100; top:30%; left:50%; animation-duration:18s;}
+
+        @keyframes float{
+            0%{ transform: translateY(0) rotate(0deg);}
+            50%{ transform: translateY(-50px) rotate(180deg);}
+            100%{ transform: translateY(0) rotate(360deg);}
+        }
+
+        /* Responsive */
+        @media(max-width:400px){
+            .login-card{ width:90%; padding:30px;}
+        }
+
+        /* Password Strength Meter */
+        .strength{
+            height:6px;
+            border-radius:4px;
+            background:#ccc;
+            margin-top:-5px;
+            margin-bottom:10px;
+            overflow:hidden;
+        }
+        .strength div{
+            height:100%;
+            width:0%;
+            background:#002D72;
+            transition:0.3s;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-bar">
+         <img src="{{ url_for('static', filename='zcas_logo.png') }}" alt="ZCAS Logo">
+        🎓 ZCAS Student Grades Tracker
+    </div>
+
+    <div class="container">
+        <form class="login-card" method="POST">
+
+            <h2>Start Tracking Your Grades!</h2>
+
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="input-group password-field">
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <span class="eye" onclick="togglePassword()">👁️</span>
+            </div>
+
+            <div class="strength">
+                <div id="strength-bar"></div>
+            </div>
+
+            <button type="submit">Login</button>
+
+            <a href="/register">Create Account</a>
+        </form>
+    </div>
+
+    <!-- Floating Circles -->
+    <div class="circle circle1"></div>
+    <div class="circle circle2"></div>
+    <div class="circle circle3"></div>
+    <div class="circle circle4"></div>
+
+    <!-- Scripts -->
+    <script>
+        // Toggle password visibility
+        function togglePassword(){
+            const pw = document.getElementById('password');
+            pw.type = pw.type === 'password' ? 'text' : 'password';
+        }
+
+        // Password strength meter
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strength-bar');
+
+        passwordInput.addEventListener('input', ()=>{
+            const val = passwordInput.value;
+            let strength = 0;
+            if(val.length >= 6) strength+=33;
+            if(/[A-Z]/.test(val)) strength+=33;
+            if(/[0-9]/.test(val)) strength+=34;
+            strengthBar.style.width = strength + '%';
+            if(strength<50) strengthBar.style.background='#FF4D4D';
+            else if(strength<75) strengthBar.style.background='#FFD100';
+            else strengthBar.style.background='#00C853';
+        });
+    </script>
+
+</body>
+</html>

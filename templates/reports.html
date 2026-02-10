@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+    body { display: flex; min-height: 100vh; background-color: #f5f7fa; color: #333; }
+
+    /* Sidebar */
+    .sidebar {
+        width: 220px;
+        background-color: #004aad;
+        color: white;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .sidebar h2 { font-size: 1.5rem; margin-bottom: 20px; color: #00cec9; text-align: center; }
+    .sidebar a { color: #dfe6e9; text-decoration: none; padding: 10px; border-radius: 6px; transition: 0.2s; }
+    .sidebar a:hover, .sidebar a.active { background-color: #00cec9; color: white; }
+
+    /* Main content */
+    .main-content { flex: 1; padding: 20px; }
+
+    /* App bar */
+    .app-bar { display: flex; justify-content: space-between; align-items: center; background-color: #004aad; color: #fff; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
+    .app-bar-left { display: flex; align-items: center; gap: 15px; }
+    .app-bar-left img { height: 50px; }
+    .app-bar-left h1 { font-size: 1.5rem; color: #fff; }
+    .app-bar-right { position: relative; display: inline-block; }
+    .app-bar-right .dropdown-btn { background: none; border: none; color: white; cursor: pointer; font-size: 1rem; padding: 5px 10px; }
+    .app-bar-right .dropdown-btn:hover { color: #ffeb3b; }
+    .app-bar-right .dropdown-content { display: none; position: absolute; top: 100%; right: 0; background-color: #004aad; min-width: 180px; border-radius: 6px; flex-direction: column; overflow: hidden; z-index: 1000; }
+    .app-bar-right .dropdown-content button, .app-bar-right .dropdown-content a { padding: 10px 15px; color: white; background: none; border: none; text-align: left; width: 100%; cursor: pointer; text-decoration: none; }
+    .app-bar-right .dropdown-content button:hover, .app-bar-right .dropdown-content a:hover { background-color: #003380; }
+    .app-bar-right:hover .dropdown-content { display: flex; }
+
+    /* Search box */
+    .search-box { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .search-box input { flex: 1; min-width: 150px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    th, td { padding: 12px; text-align: left; }
+    th { background-color: #004aad; color: white; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+    tr:hover { background-color: #dfe6e9; }
+    .average-row { font-weight: bold; background-color: #e0f7fa; }
+
+</style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Dashboard</h2>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('students_page') }}">Add Student</a>
+        <a href="{{ url_for('student_reports_page') }}" class="active">Reports</a>
+        <a href="#">Settings</a>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+
+        <!-- App Bar -->
+        <div class="app-bar">
+            <div class="app-bar-left">
+                <img src="{{ url_for('static', filename='zcas_logo.png') }}" alt="ZCAS Logo">
+                <h1>🎓 Student Reports</h1>
+            </div>
+            <div class="app-bar-right">
+                <button class="dropdown-btn">{{ current_user.first_name }} ▼</button>
+                <div class="dropdown-content">
+                    <button type="button" id="openProfileModal">View Profile</button>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Filters -->
+        <div class="search-box">
+            <input type="text" id="searchStudent" placeholder="Search by student name or ID">
+            <input type="text" id="searchSubject" placeholder="Search by subject">
+            <input type="date" id="startDate" placeholder="Start date">
+            <input type="date" id="endDate" placeholder="End date">
+        </div>
+
+        <!-- Reports Table -->
+        <table id="reportsTable">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Subject</th>
+                    <th>Score</th>
+                    <th>Average Score</th>
+                    <th>Date Added</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for student, avg_score in student_reports %}
+                    {% for grade in student.grades %}
+                        <tr>
+                            <td>{{ student.first_name }} {{ student.last_name }} ({{ student.id }})</td>
+                            <td>{{ grade.subject }}</td>
+                            <td>{{ grade.score }}</td>
+                            <td>{{ "%.2f"|format(avg_score or 0) }}</td>
+                            <td>{{ grade.date_added.strftime("%Y-%m-%d") }}</td>
+                            
+                        </tr>
+                    {% endfor %}
+                    {% if not student.grades %}
+                        <tr>
+                            <td>{{ student.first_name }} {{ student.last_name }} ({{ student.id }})</td>
+                            <td colspan="3">No grades yet</td>
+                            <td>{{ "%.2f"|format(avg_score or 0) }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+<script>
+    const studentInput = document.getElementById('searchStudent');
+    const subjectInput = document.getElementById('searchSubject');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const table = document.getElementById('reportsTable');
+
+    function filterTable() {
+        const studentFilter = studentInput.value.toLowerCase();
+        const subjectFilter = subjectInput.value.toLowerCase();
+        const start = startDate.value ? new Date(startDate.value) : null;
+        const end = endDate.value ? new Date(endDate.value) : null;
+
+        const trs = table.getElementsByTagName('tr');
+        for (let i = 1; i < trs.length; i++) {
+            const tds = trs[i].getElementsByTagName('td');
+            if (tds.length < 5) continue; // skip header or empty rows
+            const studentName = tds[0].textContent.toLowerCase();
+            const subjectName = tds[1].textContent.toLowerCase();
+            const dateAdded = new Date(tds[3].textContent);
+
+            let visible = true;
+
+            if (studentFilter && !studentName.includes(studentFilter)) visible = false;
+            if (subjectFilter && !subjectName.includes(subjectFilter)) visible = false;
+            if (start && dateAdded < start) visible = false;
+            if (end && dateAdded > end) visible = false;
+
+            trs[i].style.display = visible ? '' : 'none';
+        }
+    }
+
+    studentInput.addEventListener('keyup', filterTable);
+    subjectInput.addEventListener('keyup', filterTable);
+    startDate.addEventListener('change', filterTable);
+    endDate.addEventListener('change', filterTable);
+</script>
+
+</body>
+</html>
