@@ -51,7 +51,7 @@ body {
     box-shadow:0 8px 20px rgba(0,0,0,0.2);
     margin-bottom:20px;
     position: relative;
-    z-index:2;
+    z-index:10; /* ensures on top */
 }
 
 .app-bar img {
@@ -75,7 +75,7 @@ body {
     box-shadow:0 15px 40px rgba(0,0,0,0.2);
     text-align:center;
     position: relative;
-    z-index:2;
+    z-index:10; /* ensures on top of floating circles */
     transform: translateY(50px);
     opacity:0;
     animation: slideFade 1s forwards;
@@ -85,24 +85,6 @@ body {
 .login-card:hover{
     transform: translateY(-5px);
     box-shadow:0 20px 50px rgba(0,0,0,0.25);
-}
-
-.login-card::before {
-    content: '';
-    position: absolute;
-    width: 150%;
-    height: 150%;
-    background: radial-gradient(circle, rgba(255, 209, 0,0.2), transparent 70%);
-    top: -25%;
-    left: -25%;
-    z-index:1;
-    animation: pulseGlow 3s infinite alternate;
-    border-radius:50%;
-}
-
-@keyframes pulseGlow {
-    0% { transform: scale(1); opacity:0.6; }
-    100% { transform: scale(1.2); opacity:0.2; }
 }
 
 @keyframes slideFade {
@@ -210,6 +192,7 @@ a:hover {
     opacity:0.25;
     animation: float 20s linear infinite;
     z-index:1;
+    pointer-events: none; /* <--- allows clicks to pass through */
 }
 
 .circle1{ width:160px; height:160px; background:#FFD100; top:10%; left:5%; animation-duration:20s;}
@@ -225,16 +208,17 @@ a:hover {
     100%{ transform: translate(0,0) scale(1) rotate(360deg);}
 }
 
-/* Floating Emojis */
-.floating-emoji {
+/* Floating ZCAS Logos */
+.floating-logo {
     position:absolute;
-    font-size:24px;
+    width:50px;
+    height:50px;
     top:100%;
-    opacity:0.8;
-    animation: floatEmoji 8s linear infinite;
+    pointer-events: none; /* <--- allows clicks to pass through */
+    animation: floatLogoUp 10s linear infinite;
 }
 
-@keyframes floatEmoji {
+@keyframes floatLogoUp {
     0% { transform: translateY(0) rotate(0deg); opacity:0; }
     10% { opacity:1; }
     100% { transform: translateY(-120vh) rotate(360deg); opacity:0; }
@@ -284,10 +268,10 @@ a:hover {
 <div class="circle circle3"></div>
 <div class="circle circle4"></div>
 
-<!-- Floating Emojis -->
-<div class="floating-emoji" style="left:20%;">🎓</div>
-<div class="floating-emoji" style="left:60%;">📚</div>
-<div class="floating-emoji" style="left:80%;">📝</div>
+<!-- Floating ZCAS Logos -->
+<img class="floating-logo" style="left:20%;" src="{{ url_for('static', filename='zcas_logo.png') }}" alt="ZCAS Logo">
+<img class="floating-logo" style="left:50%;" src="{{ url_for('static', filename='zcas_logo.png') }}" alt="ZCAS Logo">
+<img class="floating-logo" style="left:80%;" src="{{ url_for('static', filename='zcas_logo.png') }}" alt="ZCAS Logo">
 
 <script>
     // Toggle password visibility
@@ -300,7 +284,7 @@ a:hover {
     const passwordInput = document.getElementById('password');
     const strengthBar = document.getElementById('strength-bar');
 
-    passwordInput.addEventListener('input', ()=>{
+    passwordInput.addEventListener('input', ()=> {
         const val = passwordInput.value;
         let strength = 0;
         if(val.length >= 6) strength += 33;
