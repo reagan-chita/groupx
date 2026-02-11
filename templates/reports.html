@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>Student Reports</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
     body { display: flex; min-height: 100vh; background-color: #f5f7fa; color: #333; }
@@ -19,8 +21,9 @@
         gap: 15px;
     }
     .sidebar h2 { font-size: 1.5rem; margin-bottom: 20px; color: #00cec9; text-align: center; }
-    .sidebar a { color: #dfe6e9; text-decoration: none; padding: 10px; border-radius: 6px; transition: 0.2s; }
+    .sidebar a { color: #dfe6e9; text-decoration: none; padding: 10px; border-radius: 6px; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
     .sidebar a:hover, .sidebar a.active { background-color: #00cec9; color: white; }
+    .sidebar i { width: 20px; text-align: center; }
 
     /* Main content */
     .main-content { flex: 1; padding: 20px; }
@@ -57,10 +60,11 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <h2>Dashboard</h2>
-        <a href="{{ url_for('home') }}">Home</a>
-        <a href="{{ url_for('students_page') }}">Add Student</a>
-        <a href="{{ url_for('student_reports_page') }}" class="active">Reports</a>
-        <a href="#">Settings</a>
+        <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
+        <a href="{{ url_for('students_page') }}"><i class="fa fa-user-graduate"></i> Add Student</a>
+        <a href="{{ url_for('student_reports_page') }}" class="{% if page == 'reports' %}active{% endif %}"><i class="fa fa-file-alt"></i> Reports</a>
+        <a href="{{ url_for('settings_page') }}" class="{% if page == 'settings' %}active{% endif %}"><i class="fa fa-cog"></i> Settings</a>
+        <a href="{{ url_for('user_management_page') }}" class="{% if page == 'users' %}active{% endif %}"><i class="fa fa-users"></i> User Management</a>   
     </div>
 
     <!-- Main content -->
@@ -75,54 +79,60 @@
             <div class="app-bar-right">
                 <button class="dropdown-btn">{{ current_user.first_name }} ▼</button>
                 <div class="dropdown-content">
-                    <button type="button" id="openProfileModal">View Profile</button>
-                    <a href="{{ url_for('logout') }}">Logout</a>
+                    <button type="button" id="openProfileModal"><i class="fa fa-user"></i> View Profile</button>
+                    <a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i> Logout</a>
                 </div>
             </div>
         </div>
 
         <!-- Search Filters -->
         <div class="search-box">
-            <input type="text" id="searchStudent" placeholder="Search by student name or ID">
+            <input type="text" id="searchStudent" placeholder="Search by student name">
             <input type="text" id="searchSubject" placeholder="Search by subject">
             <input type="date" id="startDate" placeholder="Start date">
             <input type="date" id="endDate" placeholder="End date">
         </div>
 
+        <div style="text-align: right; margin-bottom: 20px;">
+            <a href="{{ url_for('download_report') }}" 
+            style="display:inline-block; padding:10px 15px; background:#004aad; color:white; border:none; border-radius:6px; text-decoration:none; cursor:pointer;">
+            <i class="fa fa-download"></i> Download PDF
+            </a>
+        </div>
+
         <!-- Reports Table -->
-        <table id="reportsTable">
-            <thead>
-                <tr>
-                    <th>Student</th>
-                    <th>Subject</th>
-                    <th>Score</th>
-                    <th>Average Score</th>
-                    <th>Date Added</th>
-                    
-                </tr>
-            </thead>
-            <tbody>
-                {% for student, avg_score in student_reports %}
-                    {% for grade in student.grades %}
-                        <tr>
-                            <td>{{ student.first_name }} {{ student.last_name }} ({{ student.id }})</td>
-                            <td>{{ grade.subject }}</td>
-                            <td>{{ grade.score }}</td>
-                            <td>{{ "%.2f"|format(avg_score or 0) }}</td>
-                            <td>{{ grade.date_added.strftime("%Y-%m-%d") }}</td>
-                            
-                        </tr>
-                    {% endfor %}
-                    {% if not student.grades %}
-                        <tr>
-                            <td>{{ student.first_name }} {{ student.last_name }} ({{ student.id }})</td>
-                            <td colspan="3">No grades yet</td>
-                            <td>{{ "%.2f"|format(avg_score or 0) }}</td>
-                        </tr>
+        <table id="gradesTable">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Subject</th>
+                <th>Score</th>
+                <th>Passmark</th>
+                <th>Remark</th>
+                <th>Average</th>
+                <th>Date Added</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grade in grades %}
+            <tr>
+                <td>{{ grade.student_name }}</td>
+                <td>{{ grade.subject }}</td>
+                <td>{{ grade.score }}</td>
+                <td>{{ grade.passmark }}</td>
+                <td>
+                    {% if grade.passed %}
+                        <span style="color: green;"><i class="fa fa-check-circle"></i> Passed</span>
+                    {% else %}
+                        <span style="color: red;"><i class="fa fa-times-circle"></i> Failed</span>
                     {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
+                </td>
+                <td>{{ grade.average_score }}</td>
+                <td>{{ grade.date_added.strftime("%Y-%m-%d") }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
     </div>
 
@@ -131,7 +141,7 @@
     const subjectInput = document.getElementById('searchSubject');
     const startDate = document.getElementById('startDate');
     const endDate = document.getElementById('endDate');
-    const table = document.getElementById('reportsTable');
+    const table = document.getElementById('gradesTable');
 
     function filterTable() {
         const studentFilter = studentInput.value.toLowerCase();
@@ -142,13 +152,13 @@
         const trs = table.getElementsByTagName('tr');
         for (let i = 1; i < trs.length; i++) {
             const tds = trs[i].getElementsByTagName('td');
-            if (tds.length < 5) continue; // skip header or empty rows
+            if (tds.length < 6) continue;
+
             const studentName = tds[0].textContent.toLowerCase();
             const subjectName = tds[1].textContent.toLowerCase();
-            const dateAdded = new Date(tds[3].textContent);
+            const dateAdded = new Date(tds[6].textContent);
 
             let visible = true;
-
             if (studentFilter && !studentName.includes(studentFilter)) visible = false;
             if (subjectFilter && !subjectName.includes(subjectFilter)) visible = false;
             if (start && dateAdded < start) visible = false;

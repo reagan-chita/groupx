@@ -3,159 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <title>Grades - {{ student.first_name }} {{ student.last_name }}</title>
+
+<!-- Fonts & Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+body { display: flex; min-height: 100vh; background-color: #f5f7fa; color: #333; }
 
-    body { display: flex; min-height: 100vh; background-color: #f5f7fa; color: #333; }
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    background-color: #004aad;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-shrink: 0;
+}
+.sidebar h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #00cec9;
+    text-align: center;
+}
+.sidebar a {
+    color: #dfe6e9;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 6px;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sidebar a:hover, .sidebar a.active {
+    background-color: #00cec9;
+    color: white;
+}
+.sidebar i { width: 20px; text-align: center; }
 
-    /* Sidebar */
-    .sidebar {
-        width: 220px;
-        background-color: #004aad;
-        color: white;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        flex-shrink: 0;
-    }
-    .sidebar h2 { font-size: 1.5rem; margin-bottom: 20px; color: #00cec9; text-align: center; }
-    .sidebar a { color: #dfe6e9; text-decoration: none; padding: 10px; border-radius: 6px; transition: 0.2s; }
-    .sidebar a:hover, .sidebar a.active { background-color: #00cec9; color: white; }
+/* App bar */
+.app-bar {
+    height: 60px;
+    width: calc(100% - 220px);
+    background-color: #004aad;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    left: 220px;
+    z-index: 1000;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+.app-bar-left { display: flex; align-items: center; gap: 15px; }
+.app-bar-left img { height: 40px; }
+.app-bar-left h1 { font-size: 1.2rem; color: #fff; }
+.app-bar-right { display: flex; align-items: center; gap: 15px; }
+.app-bar-right span { font-weight: bold; }
+.app-bar-right a { color: #fff; text-decoration: none; font-weight: bold; }
+.app-bar-right a:hover { text-decoration: underline; }
 
-    /* App bar */
-    .app-bar {
-        height: 60px;
-        width: calc(100% - 220px);
-        background-color: #004aad;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 20px;
-        position: fixed;
-        top: 0;
-        left: 220px;
-        z-index: 1000;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
-    }
-    .app-bar-left { display: flex; align-items: center; gap: 15px; }
-    .app-bar-left img { height: 40px; }
-    .app-bar-left h1 { font-size: 1.2rem; color: #fff; }
-    .app-bar-right { display: flex; align-items: center; gap: 15px; }
-    .app-bar-right span { font-weight: bold; }
-    .app-bar-right a { color: #fff; text-decoration: none; font-weight: bold; }
-    .app-bar-right a:hover { text-decoration: underline; }
+/* Main content */
+.main-content { flex: 1; padding: 100px 30px 30px 30px; }
+h1 { text-align: center; margin-bottom: 20px; color: #2f3640; }
 
-    /* Main content */
-    .main-content { flex: 1; padding: 100px 30px 30px 30px; }
+/* Flash messages */
+.flash { max-width: 500px; margin: 10px auto; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; }
+.flash.success { background-color: #dff9fb; color: #00b894; border: 1px solid #00b894; }
+.flash.error { background-color: #fab1a0; color: #d63031; border: 1px solid #d63031; }
 
-    h1 { text-align: center; margin-bottom: 20px; color: #2f3640; }
+/* Search box */
+.search-box { max-width: 400px; margin: 20px auto; }
+.search-box input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #dcdde1; font-size: 16px; }
 
-    /* Flash messages */
-    .flash { max-width: 500px; margin: 10px auto; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; }
-    .flash.success { background-color: #dff9fb; color: #00b894; border: 1px solid #00b894; }
-    .flash.error { background-color: #fab1a0; color: #d63031; border: 1px solid #d63031; }
+/* Table */
+table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+th, td { padding: 12px; text-align: center; border-bottom: 1px solid #dcdde1; }
+th { background-color: #0984e3; color: white; text-transform: uppercase; }
+tr:hover { background-color: #dfe6e9; }
 
-    /* Search box */
-    .search-box { max-width: 400px; margin: 20px auto; }
-    .search-box input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #dcdde1; font-size: 16px; }
+/* Form */
+form { max-width: 500px; margin: 20px auto 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; justify-content: space-between; }
+form input { width: calc(50% - 12px); padding: 10px; margin: 5px 0; border: 1px solid #dcdde1; border-radius: 5px; font-size: 16px; }
+form button { width: 100%; padding: 12px; margin-top: 10px; background-color: #00b894; border: none; border-radius: 5px; color: #fff; font-size: 16px; cursor: pointer; transition: 0.3s; }
+form button:hover { background-color: #55efc4; }
 
-    /* Table */
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    th, td { padding: 12px; text-align: center; border-bottom: 1px solid #dcdde1; }
-    th { background-color: #0984e3; color: white; text-transform: uppercase; }
-    tr:hover { background-color: #dfe6e9; }
-
-    /* Form */
-    form { max-width: 500px; margin: 20px auto 50px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; justify-content: space-between; }
-    form input { width: calc(50% - 12px); padding: 10px; margin: 5px 0; border: 1px solid #dcdde1; border-radius: 5px; font-size: 16px; }
-    form button { width: 100%; padding: 12px; margin-top: 10px; background-color: #00b894; border: none; border-radius: 5px; color: #fff; font-size: 16px; cursor: pointer; transition: 0.3s; }
-    form button:hover { background-color: #55efc4; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        body { flex-direction: column; }
-        .sidebar { width: 100%; flex-direction: row; justify-content: space-around; padding: 10px 0; }
-        .sidebar h2 { display: none; }
-        .app-bar { width: 100%; left: 0; }
-        .main-content { padding: 120px 20px 20px 20px; }
-        form input { width: 100%; }
-        .search-box { max-width: 100%; padding: 0 20px; }
-    }
+/* Responsive */
+@media (max-width: 768px) {
+    body { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; justify-content: space-around; padding: 10px 0; }
+    .sidebar h2 { display: none; }
+    .app-bar { width: 100%; left: 0; }
+    .main-content { padding: 120px 20px 20px 20px; }
+    form input { width: 100%; }
+    .search-box { max-width: 100%; padding: 0 20px; }
+}
 </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Dashboard</h2>
-        <a href="{{ url_for('home') }}">Home</a>
-        <a href="{{ url_for('students_page') }}" class="active">Add Student</a>
-        <a href="{{ url_for('student_reports_page') }}">Reports</a>
-        <a href="#">Settings</a>
+<!-- Sidebar -->
+<div class="sidebar">
+    <h2>Dashboard</h2>
+    <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
+    <a href="{{ url_for('students_page') }}"><i class="fa fa-user-plus"></i> Add Student</a>
+    <a href="{{ url_for('student_reports_page') }}" class="{% if page == 'reports' %}active{% endif %}"><i class="fa fa-file-alt"></i> Reports</a>
+    <a href="{{ url_for('settings_page') }}" class="{% if page == 'settings' %}active{% endif %}"><i class="fa fa-cog"></i> Settings</a>
+    <a href="{{ url_for('user_management_page') }}" class="{% if page == 'users' %}active{% endif %}"><i class="fa fa-users"></i> User Management</a>
+</div>
+
+<!-- App Bar -->
+<div class="app-bar">
+    <div class="app-bar-left">
+        <img src="{{ url_for('static', filename='zcas_logo.png') }}" alt="ZCAS Logo">
+        <h1>Student Grades</h1>
+    </div>
+    <div class="app-bar-right">
+        <span>{{ current_user.first_name }}</span>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</div>
+
+<!-- Main content -->
+<div class="main-content">
+
+    <h1>Grades for {{ student.first_name }} {{ student.last_name }}</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Search -->
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by subject...">
     </div>
 
-    <!-- App Bar -->
-    <div class="app-bar">
-        <div class="app-bar-left">
-            <img src="{{ url_for('static', filename='zcas_logo.png') }}" alt="ZCAS Logo">
-            <h1>Student Grades</h1>
-        </div>
-        <div class="app-bar-right">
-            <span>{{ current_user.first_name }}</span>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </div>
-    </div>
-
-    <!-- Main content -->
-    <div class="main-content">
-
-        <h1>Grades for {{ student.first_name }} {{ student.last_name }}</h1>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="flash {{ category }}">{{ message }}</div>
+    <!-- Grades Table -->
+    <table id="gradesTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Score</th>
+                <th>Passmark</th>
+                <th>Passed</th>
+                <th>Date Added</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grade in grades %}
+            <tr>
+                <td>{{ grade.subject }}</td>
+                <td>{{ grade.score }}</td>
+                <td>{{ grade.passmark }}</td>
+                <td>
+                    {% if grade.passed %}
+                        <span class="badge bg-success">Passed</span>
+                    {% else %}
+                        <span class="badge bg-danger">Failed</span>
+                    {% endif %}
+                </td>
+                <td>{{ grade.date_added.strftime("%Y-%m-%d") }}</td>
+            </tr>
             {% endfor %}
-          {% endif %}
-        {% endwith %}
+        </tbody>
+    </table>
 
-        <!-- Search -->
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search by subject...">
-        </div>
+    <!-- Add New Grade Form -->
+    <form method="POST" action="{{ url_for('grades_page', student_id=student.id) }}">
+        <input type="text" name="subject" placeholder="Subject" required>
+        <input type="number" name="score" placeholder="Score" step="0.01" required>
+        <input type="number" name="passmark" placeholder="Passmark" step="0.01" value="40" required>
+        <button type="submit">Add Grade</button>
+    </form>
 
-        <!-- Grades Table -->
-        <table id="gradesTable">
-            <thead>
-                <tr>
-                    <th>Subject</th>
-                    <th>Score</th>
-                    <th>Date Added</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for grade in grades %}
-                <tr>
-                    <td>{{ grade.subject }}</td>
-                    <td>{{ grade.score }}</td>
-                    <td>{{ grade.date_added.strftime("%Y-%m-%d") }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- Add New Grade Form -->
-        <form method="POST" action="{{ url_for('grades_page', student_id=student.id) }}">
-            <input type="text" name="subject" placeholder="Subject" required>
-            <input type="number" name="score" placeholder="Score" step="0.01" required>
-            <button type="submit">Add Grade</button>
-        </form>
-
-    </div>
+</div>
 
 <script>
     // ---------------- Search Functionality ----------------

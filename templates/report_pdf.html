@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    body { font-family: Arial; }
+    h2 { text-align:center; }
+
+    table {
+        width:100%;
+        border-collapse: collapse;
+        margin-top:20px;
+    }
+
+    th, td {
+        border:1px solid black;
+        padding:8px;
+        text-align:left;
+    }
+
+    th {
+        background-color:#004aad;
+        color:white;
+    }
+</style>
+</head>
+<body>
+
+<h2>ZCAS Student Report</h2>
+
+<table>
+<thead>
+<tr>
+    <th>Student</th>
+    <th>Subject</th>
+    <th>Score</th>
+    <th>Average</th>
+    <th>Date</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for student, avg_score in student_reports %}
+    {% for grade in student.grades %}
+    <tr>
+        <td>{{ student.first_name }} {{ student.last_name }}</td>
+        <td>{{ grade.subject }}</td>
+        <td>{{ grade.score }}</td>
+        <td>{{ "%.2f"|format(avg_score or 0) }}</td>
+        <td>{{ grade.date_added.strftime("%Y-%m-%d") }}</td>
+    </tr>
+    {% endfor %}
+{% endfor %}
+
+</tbody>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:'Roboto',sans-serif;
+}
+
+body{
+    display:flex;
+    min-height:100vh;
+    background:#f4f7fb;
+}
+
+/* SIDEBAR */
+.sidebar{
+    width:240px;
+    background:#004aad;
+    color:white;
+    padding:25px;
+}
+.sidebar h2{
+    text-align:center;
+    margin-bottom:30px;
+}
+.sidebar a{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#dfe6e9;
+    padding:12px;
+    border-radius:8px;
+    text-decoration:none;
+    margin-bottom:10px;
+    transition:.2s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+    background:#00cec9;
+    color:white;
+}
+
+/* MAIN */
+.main-content{
+    flex:1;
+    padding:35px;
+}
+
+/* APP BAR */
+.app-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#004aad;
+    color:white;
+    padding:18px 25px;
+    border-radius:12px;
+    margin-bottom:25px;
+}
+.app-bar-left{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+.app-bar-left img{
+    height:55px;
+}
+.app-bar-right{
+    position:relative;
+}
+.dropdown-btn{
+    background:none;
+    border:none;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+.dropdown-content{
+    display:none;
+    position:absolute;
+    right:0;
+    background:#004aad;
+    border-radius:8px;
+    overflow:hidden;
+}
+.dropdown-content a,
+.dropdown-content button{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 18px;
+    color:white;
+    text-decoration:none;
+    border:none;
+    background:none;
+    width:100%;
+    text-align:left;
+}
+.dropdown-content a:hover{
+    background:#003380;
+}
+.app-bar-right:hover .dropdown-content{
+    display:block;
+}
+
+/* TABLE */
+.table-container{
+    width:100%;
+}
+.table-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+.table-header h3{
+    font-size:28px;
+}
+
+/* BUTTON */
+.add-btn{
+    padding:10px 18px;
+    border:none;
+    border-radius:10px;
+    background:#4CAF50;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.add-btn:hover{
+    background:#43a047;
+}
+
+/* BIG PREMIUM TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 8px 25px rgba(0,0,0,0.05);
+}
+th,td{
+    padding:20px;
+    text-align:left;
+}
+th{
+    background:linear-gradient(135deg,#004aad,#0066ff);
+    color:white;
+    font-size:17px;
+}
+tr:nth-child(even){
+    background:#f7f9fc;
+}
+tr:hover{
+    background:#eef4ff;
+}
+
+/* ACTION BUTTONS */
+.edit-btn,
+.delete-btn{
+    padding:7px 14px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+.edit-btn{
+    background:#ff9800;
+}
+.delete-btn{
+    background:#f44336;
+}
+
+/* ADMIN BADGE */
+.admin-badge{
+    padding:5px 12px;
+    border-radius:20px;
+    color:white;
+    font-size:13px;
+}
+.admin-true{
+    background:#4CAF50;
+}
+.admin-false{
+    background:#9e9e9e;
+}
+
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+}
+.modal-content{
+    background:white;
+    width:420px;
+    margin:10% auto;
+    padding:30px;
+    border-radius:14px;
+}
+.modal form{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+.modal input{
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+.modal button{
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#4CAF50;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+.close{
+    float:right;
+    cursor:pointer;
+    font-size:22px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>Dashboard</h2>
+    <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
+    <a href="{{ url_for('students_page') }}"><i class="fa fa-user-graduate"></i> Add Student</a>
+    <a href="{{ url_for('student_reports_page') }}" class="{% if page == 'reports' %}active{% endif %}"><i class="fa fa-file-alt"></i> Reports</a>
+    <a href="{{ url_for('settings_page') }}" class="{% if page == 'settings' %}active{% endif %}"><i class="fa fa-cog"></i> Settings</a>
+    <a href="{{ url_for('user_management_page') }}" class="{% if page == 'users' %}active{% endif %}"><i class="fa fa-users"></i> User Management</a>   
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+<div class="app-bar">
+    <div class="app-bar-left">
+        <img src="{{ url_for('static', filename='zcas_logo.png') }}">
+        <h1><i class="fa fa-users"></i> User Management</h1>
+    </div>
+
+    <div class="app-bar-right">
+        <button class="dropdown-btn"><i class="fa fa-user"></i> {{ current_user.first_name }} ▼</button>
+        <div class="dropdown-content">
+            <a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="flash">{{ msg }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="table-container">
+
+    <div class="table-header">
+        <h3><i class="fa fa-users"></i> Users</h3>
+        <button class="add-btn" id="openAddModal"><i class="fa fa-plus"></i> Add New User</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th width="180">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    {% if user.is_admin %}
+                        <span class="admin-badge admin-true"><i class="fa fa-shield-alt"></i> Admin</span>
+                    {% else %}
+                        <span class="admin-badge admin-false"><i class="fa fa-user"></i> User</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <button type="button"
+                        class="edit-btn"
+                        onclick="openEditModal(
+                            '{{ user.id }}',
+                            '{{ user.username }}',
+                            '{{ user.first_name }}',
+                            '{{ user.last_name }}',
+                            '{{ user.email }}',
+                            '{{ user.is_admin }}'
+                        )">
+                        <i class="fa fa-edit"></i> Edit
+                    </button>
+
+                    <form method="POST"
+                          action="{{ url_for('delete_user', user_id=user.id) }}"
+                          style="display:inline;">
+                        <button class="delete-btn"><i class="fa fa-trash"></i> Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
+</div>
+
+<!-- ADD USER MODAL -->
+<div id="userModal" class="modal">
+
+<div class="modal-content">
+
+<span class="close" id="closeModal">&times;</span>
+
+<h2><i class="fa fa-user-plus"></i> Add User</h2>
+
+<form method="POST" action="{{ url_for('add_user') }}">
+    <input name="username" placeholder="Username" required>
+    <input name="first_name" placeholder="First Name" required>
+    <input name="last_name" placeholder="Last Name" required>
+    <input name="email" type="email" placeholder="Email" required>
+    <input name="password" type="password" placeholder="Password" required>
+
+    <label>
+        <input type="checkbox" name="is_admin"> Admin
+    </label>
+
+    <button><i class="fa fa-save"></i> Add User</button>
+</form>
+
+</div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+
+        <h2><i class="fa fa-edit"></i> Edit User</h2>
+
+        <form method="POST" id="editForm">
+            <input type="hidden" name="user_id" id="edit_id">
+
+            <input type="text" name="username" id="edit_username" required>
+            <input type="text" name="first_name" id="edit_first_name" required>
+            <input type="text" name="last_name" id="edit_last_name" required>
+            <input type="email" name="email" id="edit_email" required>
+
+            <input type="password" name="password" placeholder="Leave blank to keep old password">
+
+            <label>
+                <input type="checkbox" name="is_admin" id="edit_is_admin"> Admin
+            </label>
+
+            <button type="submit"><i class="fa fa-save"></i> Update User</button>
+        </form>
+    </div>
+</div>
+
+<script>
+const modal=document.getElementById('userModal');
+document.getElementById('openAddModal').onclick=()=>modal.style.display='block';
+document.getElementById('closeModal').onclick=()=>modal.style.display='none';
+
+window.onclick=(e)=>{
+    if(e.target==modal)
+        modal.style.display='none';
+}
+
+function openEditModal(id, username, first, last, email, admin){
+    document.getElementById('editModal').style.display = 'block';
+    document.getElementById('edit_id').value = id;
+    document.getElementById('edit_username').value = username;
+    document.getElementById('edit_first_name').value = first;
+    document.getElementById('edit_last_name').value = last;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_is_admin').checked = admin === "True" || admin === "true";
+    document.getElementById('editForm').action = "/edit_user/" + id;
+}
+
+function closeEditModal(){
+    document.getElementById('editModal').style.display = 'none';
+}
+
+window.onclick = function(event){
+    const modal = document.getElementById('editModal');
+    if(event.target === modal){
+        modal.style.display = "none";
+    }
+}
+</script>
+
+</body>
+</html>
