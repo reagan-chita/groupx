@@ -58,14 +58,7 @@
 <body>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Dashboard</h2>
-        <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
-        <a href="{{ url_for('students_page') }}"><i class="fa fa-user-graduate"></i> Add Student</a>
-        <a href="{{ url_for('student_reports_page') }}" class="{% if page == 'reports' %}active{% endif %}"><i class="fa fa-file-alt"></i> Reports</a>
-        <a href="{{ url_for('settings_page') }}" class="{% if page == 'settings' %}active{% endif %}"><i class="fa fa-cog"></i> Settings</a>
-        <a href="{{ url_for('user_management_page') }}" class="{% if page == 'users' %}active{% endif %}"><i class="fa fa-users"></i> User Management</a>   
-    </div>
+  {% include "_sidebar.html" %}
 
     <!-- Main content -->
     <div class="main-content">

@@ -67,6 +67,13 @@ class User(db.Model, UserMixin):
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    # ✅ REPORT SETTINGS
+    grading_scale = db.Column(db.Integer, default=100)
+    passing_mark = db.Column(db.Float, default=40)
+    dark_mode = db.Column(db.Boolean, default=False)
+    # ✅ ADMIN SETTINGS
+    allow_user_registration = db.Column(db.Boolean, default=True)
+    default_sort = db.Column(db.String(20), default="name")
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -233,10 +240,34 @@ def edit_student(student_id):
 
     student = Student.query.get_or_404(student_id)
 
+    new_email = request.form.get('email')
+    new_student_id = request.form['student_id']
+
+    # prevent duplicate student_id
+    existing_id = Student.query.filter(
+        Student.student_id == new_student_id,
+        Student.id != student_id
+    ).first()
+
+    if existing_id:
+        flash('Student ID already exists!', 'error')
+        return redirect(url_for('students_page'))
+
+    # prevent duplicate email
+    if new_email:
+        existing_email = Student.query.filter(
+            Student.email == new_email,
+            Student.id != student_id
+        ).first()
+
+        if existing_email:
+            flash('Email already exists!', 'error')
+            return redirect(url_for('students_page'))
+
     student.first_name = request.form['first_name']
     student.last_name = request.form['last_name']
-    student.email = request.form.get('email')
-    student.student_id = request.form['student_id']
+    student.email = new_email
+    student.student_id = new_student_id
 
     db.session.commit()
 
