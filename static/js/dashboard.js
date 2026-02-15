@@ -111,5 +111,13 @@ function initCharts(gradeLabels, gradeCounts, subjects, subjectAverages) {
     }
 }
 
+
+ 
+
+
+
+
+
+
    
 }

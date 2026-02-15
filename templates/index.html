@@ -5,6 +5,7 @@
 <title>Student Grades Tracker</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -31,12 +32,13 @@
             <h1>Student Grades Tracker</h1>
         </div>
 
-        <button onclick="toggleTheme()" class="theme-btn">🌙 Dark Mode</button>
+        
 
         <div class="app-bar-right">
             <button class="dropdown-btn">{{ current_user.first_name }}</button>
             <div class="dropdown-content">
                 <button id="openProfileModal">Profile</button>
+                <button onclick="toggleTheme()" class="theme-btn">🌙 Dark Mode</button>
                 <a href="{{ url_for('logout') }}">Logout</a>
             </div>
         </div>
@@ -50,7 +52,7 @@
 
     <div class="cards">
         <div class="card"><h3>Total Students</h3><p>{{ students|length }}</p></div>
-        <div class="card"><h3>Average Grade</h3><p>{{ average_grade }}%</p></div>
+        <div class="card"><h3>Average Grade</h3><p>{{ average_grade | round(2) }}%</p></div>
         <div class="card"><h3>Top Student</h3><p>{{ top_student.first_name if top_student else 'N/A' }}</p></div>
     </div>
 
@@ -73,8 +75,68 @@
     </div>
 </div>
 
+<!-- SEARCH RESULTS MODAL -->
+<div id="searchModal" class="modal">
+    <div class="modal-content" style="width:600px;">
+        <span class="close" id="closeSearchModal">&times;</span>
+        <h2>Search Results</h2>
+        <table id="searchResultsTable">
+            <thead>
+                <tr><th>Name</th><th>Email</th><th>Grade</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="noResultsMsg" style="display:none; margin-top:10px; color:red;">No matching students found.</p>
+    </div>
+</div>
+
 <!-- Load JS -->
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+    // ==================== STUDENT SEARCH MODAL ====================
+    const searchInput = document.getElementById("searchStudent");
+    const searchModal = document.getElementById("searchModal");
+    const closeSearchModal = document.getElementById("closeSearchModal");
+    const searchResultsTable = document.getElementById("searchResultsTable")?.querySelector("tbody");
+    const noResultsMsg = document.getElementById("noResultsMsg");
+
+    if (searchInput && searchModal && searchResultsTable) {
+        // Students array
+        const students = [
+            {% for student in students %}
+            { name: "{{ student.first_name }} {{ student.last_name }}", email: "{{ student.email }}", grade: "{{ student.grade }}" }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        function showSearchModal() { searchModal.style.display = "flex"; }
+
+        closeSearchModal.addEventListener("click", () => searchModal.style.display = "none");
+        window.addEventListener("click", e => { if (e.target === searchModal) searchModal.style.display = "none"; });
+
+        searchInput.addEventListener("keyup", function () {
+            const query = searchInput.value.toLowerCase().trim();
+            if (query.length === 0) { searchModal.style.display = "none"; return; }
+
+            const results = students.filter(s => s.name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query));
+            searchResultsTable.innerHTML = "";
+
+            if (results.length === 0) {
+                noResultsMsg.style.display = "block";
+            } else {
+                noResultsMsg.style.display = "none";
+                results.forEach(s => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${s.name}</td><td>${s.email}</td><td>${s.grade}</td>`;
+                    searchResultsTable.appendChild(row);
+                });
+            }
+            showSearchModal();
+        });
+    }
+});
+</script>
 
 </body>
 </html>
