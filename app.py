@@ -324,6 +324,40 @@ def grades_page(student_id):
     return render_template("grades.html", student=student, grades=grades)
 
 
+@app.route('/edit_grade/<int:grade_id>', methods=['POST'])
+@login_required
+def edit_grade(grade_id):
+    grade = Grade.query.get_or_404(grade_id)
+    student_id = grade.student_id
+
+    try:
+        grade.subject = request.form['subject']
+        grade.score = float(request.form['score'])
+        grade.passmark = float(request.form['passmark'])
+    except (ValueError, KeyError):
+        flash('Invalid grade data. Please check the values and try again.', 'error')
+        return redirect(url_for('grades_page', student_id=student_id))
+
+    grade.calculate_passed()
+    db.session.commit()
+
+    flash('Grade updated successfully!', 'success')
+    return redirect(url_for('grades_page', student_id=student_id))
+
+
+@app.route('/delete_grade/<int:grade_id>', methods=['POST'])
+@login_required
+def delete_grade(grade_id):
+    grade = Grade.query.get_or_404(grade_id)
+    student_id = grade.student_id
+
+    db.session.delete(grade)
+    db.session.commit()
+
+    flash('Grade deleted successfully!', 'success')
+    return redirect(url_for('grades_page', student_id=student_id))
+
+
 
 
 
