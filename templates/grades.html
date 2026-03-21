@@ -95,6 +95,23 @@ form input { width: calc(50% - 12px); padding: 10px; margin: 5px 0; border: 1px 
 form button { width: 100%; padding: 12px; margin-top: 10px; background-color: #00b894; border: none; border-radius: 5px; color: #fff; font-size: 16px; cursor: pointer; transition: 0.3s; }
 form button:hover { background-color: #55efc4; }
 
+/* Action buttons */
+.btn-edit { background-color: #0984e3; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+.btn-edit:hover { background-color: #0652dd; }
+.btn-delete { background-color: #d63031; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+.btn-delete:hover { background-color: #b71c1c; }
+
+/* Modal */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+.modal-content { background-color: #fff; margin: auto; padding: 20px; border-radius: 8px; width: 420px; max-width: 90%; box-shadow: 0 2px 8px rgba(0,0,0,0.2); position: relative; }
+.modal-content h2 { margin-bottom: 15px; color: #2f3640; }
+.close { color: #aaa; position: absolute; top: 10px; right: 15px; font-size: 24px; font-weight: bold; cursor: pointer; }
+.close:hover { color: #000; }
+.modal form { display: flex; flex-direction: column; gap: 10px; max-width: 100%; box-shadow: none; padding: 0; margin: 0; }
+.modal form input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
+.modal form button { padding: 10px; background-color: #0984e3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; }
+.modal form button:hover { background-color: #0652dd; }
+
 /* Responsive */
 @media (max-width: 768px) {
     body { flex-direction: column; }
@@ -151,6 +168,7 @@ form button:hover { background-color: #55efc4; }
                 <th>Passmark</th>
                 <th>Passed</th>
                 <th>Date Added</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -167,6 +185,20 @@ form button:hover { background-color: #55efc4; }
                     {% endif %}
                 </td>
                 <td>{{ grade.date_added.strftime("%Y-%m-%d") }}</td>
+                <td>
+                    <button class="btn-edit"
+                            data-grade-id="{{ grade.id }}"
+                            data-subject="{{ grade.subject|e }}"
+                            data-score="{{ grade.score }}"
+                            data-passmark="{{ grade.passmark }}">
+                        <i class="fa fa-edit"></i> Edit
+                    </button>
+                    <form action="{{ url_for('delete_grade', grade_id=grade.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-delete" onclick="return confirm('Delete this grade?');">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -180,6 +212,20 @@ form button:hover { background-color: #55efc4; }
         <button type="submit">Add Grade</button>
     </form>
 
+</div>
+
+<!-- EDIT GRADE MODAL -->
+<div id="editGradeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editGradeModalTitle">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2 id="editGradeModalTitle">Edit Grade</h2>
+        <form id="editGradeForm" method="POST">
+            <input id="edit_subject" name="subject" placeholder="Subject" required>
+            <input id="edit_score" name="score" type="number" step="0.01" placeholder="Score" required>
+            <input id="edit_passmark" name="passmark" type="number" step="0.01" placeholder="Passmark" required>
+            <button type="submit"><i class="fa fa-save"></i> Update Grade</button>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -201,6 +247,27 @@ form button:hover { background-color: #55efc4; }
             }
             trs[i].style.display = visible ? '' : 'none';
         }
+    });
+
+    // ---------------- Edit Grade Modal ----------------
+    const editModal = document.getElementById('editGradeModal');
+
+    document.querySelectorAll('.btn-edit').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.getElementById('edit_subject').value = this.dataset.subject;
+            document.getElementById('edit_score').value = this.dataset.score;
+            document.getElementById('edit_passmark').value = this.dataset.passmark;
+            document.getElementById('editGradeForm').action = '/edit_grade/' + this.dataset.gradeId;
+            editModal.style.display = 'flex';
+        });
+    });
+
+    function closeEditModal() {
+        editModal.style.display = 'none';
+    }
+
+    window.addEventListener('click', function(e) {
+        if (e.target === editModal) closeEditModal();
     });
 </script>
 
