@@ -5,8 +5,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from datetime import datetime
 from flask_migrate import Migrate
-import os
-
 
 # --- ReportLab PDF imports ---
 from io import BytesIO
@@ -787,10 +785,13 @@ def upload_students():
 
 
 # ---------------- RUN ----------------
+# if __name__ == "__main__":
+#     with app.app_context():
+#         db.create_all()
 
-
+#     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 4000)), debug=True)
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
 
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
+    app.run(debug=True)
